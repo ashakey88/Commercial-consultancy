@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Efficiency Curve — Malleson Labs Research</title>
+<link rel="stylesheet" href="../shared.css">
+<style>
+  .article-header { padding: 140px 48px 0; max-width: 720px; margin: 0 auto; }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--slate-400); text-decoration: none; margin-bottom: 32px;
+  }
+  .back-link:hover { color: var(--electric); }
+
+  .article-tag-hero {
+    display: inline-block; background: var(--electric-light); border: 1px solid var(--electric-mid); color: var(--electric);
+    padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 20px;
+  }
+
+  .article-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(30px, 4.2vw, 44px);
+    letter-spacing: -1.1px; line-height: 1.18;
+    color: var(--slate-900); margin-bottom: 20px;
+  }
+
+  .article-header .subhead { font-size: 16px; color: var(--slate-500); line-height: 1.6; margin-bottom: 28px; }
+
+  .article-meta-row {
+    display: flex; align-items: center; gap: 16px;
+    padding-bottom: 32px; margin-bottom: 32px;
+    border-bottom: 1px solid var(--slate-200);
+  }
+
+  .author-chip { display: flex; align-items: center; gap: 10px; }
+
+  .author-avatar {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--slate-900);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif; font-size: 14px; color: var(--white);
+  }
+
+  .author-name { font-size: 13px; font-weight: 600; color: var(--slate-900); }
+  .article-date { font-size: 13px; color: var(--slate-400); }
+  .read-time { font-size: 13px; color: var(--slate-400); }
+
+  .article-body-content { max-width: 720px; margin: 0 auto; padding: 0 48px 48px; }
+
+  .article-body-content p { font-size: 17px; line-height: 1.75; color: var(--slate-700); margin-bottom: 24px; }
+  .article-body-content p.lede { font-size: 19px; color: var(--slate-800); }
+
+  .article-body-content h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; color: var(--slate-900);
+    letter-spacing: -0.5px; margin: 48px 0 20px;
+    line-height: 1.25;
+  }
+
+  .article-body-content h3 { font-size: 15px; font-weight: 700; color: var(--slate-900); margin: 28px 0 10px; }
+
+  /* Charts */
+  .chart-block {
+    margin: 40px 0; border: 1px solid var(--slate-200); border-radius: 12px; overflow: hidden; background: var(--off-white);
+  }
+  .chart-block-header { padding: 20px 24px 0; }
+  .chart-title { font-size: 13px; font-weight: 700; color: var(--slate-900); margin-bottom: 4px; }
+  .chart-subtitle { font-size: 12px; color: var(--slate-400); margin-bottom: 16px; }
+  .chart-visual { padding: 0 24px 24px; }
+  .chart-svg-wrap { background: var(--white); border-radius: 8px; padding: 20px; }
+  .chart-caption {
+    font-size: 12px; color: var(--slate-400); padding: 12px 24px;
+    border-top: 1px solid var(--slate-200); font-style: italic;
+  }
+
+  /* Company table */
+  .company-table { margin: 32px 0; border: 1px solid var(--slate-200); border-radius: 12px; overflow: hidden; }
+  .company-row { display: grid; grid-template-columns: 1.2fr 1fr 1.8fr; }
+  .company-row.header { background: var(--slate-900); }
+  .company-row.header div { color: var(--white); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 14px 18px; }
+  .company-row:not(.header) div { padding: 14px 18px; font-size: 13px; color: var(--slate-700); line-height: 1.5; border-top: 1px solid var(--slate-200); }
+  .company-row:not(.header) div:first-child { font-weight: 600; color: var(--slate-900); background: var(--off-white); }
+  .company-row:not(.header) div:nth-child(2) { font-weight: 600; color: var(--electric); border-right: 1px solid var(--slate-200); border-left: 1px solid var(--slate-200); }
+
+  .pull-quote {
+    margin: 40px 0; padding: 28px 32px;
+    background: var(--electric-light); border-left: 3px solid var(--electric); border-radius: 0 8px 8px 0;
+  }
+  .pull-quote p {
+    font-family: 'DM Serif Display', serif; font-size: 21px; font-style: italic; color: var(--slate-900); line-height: 1.4; margin: 0;
+  }
+
+  .stat-compare-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 32px 0; }
+  .stat-compare-card { background: var(--white); border: 1px solid var(--slate-200); border-radius: 10px; padding: 20px; }
+  .stat-compare-card.highlight { background: var(--electric-light); border-color: var(--electric-mid); }
+  .stat-compare-num { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--slate-900); letter-spacing: -0.5px; margin-bottom: 6px; }
+  .stat-compare-card.highlight .stat-compare-num { color: var(--electric); }
+  .stat-compare-label { font-size: 12px; color: var(--slate-500); line-height: 1.4; }
+
+  .implications-list { list-style: none; display: flex; flex-direction: column; gap: 20px; margin: 24px 0 32px; }
+  .implications-list li { padding-left: 24px; position: relative; }
+  .implications-list li::before { content: '→'; position: absolute; left: 0; top: 2px; color: var(--electric); font-weight: 700; }
+  .implications-list strong { display: block; font-size: 16px; color: var(--slate-900); margin-bottom: 4px; }
+  .implications-list span { font-size: 15px; color: var(--slate-600); line-height: 1.6; }
+
+  .data-quality-box {
+    margin: 32px 0; background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: 10px; padding: 24px;
+  }
+  .data-quality-box .dq-title { font-size: 13px; font-weight: 700; color: var(--slate-900); margin-bottom: 10px; }
+  .data-quality-box p { font-size: 13px; color: var(--slate-600); line-height: 1.6; margin-bottom: 0; }
+
+  .article-footnote {
+    font-size: 13px; color: var(--slate-400); font-style: italic;
+    margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--slate-200);
+  }
+
+  .inline-cta { margin: 48px 0; background: var(--slate-900); border-radius: 12px; padding: 32px; text-align: center; }
+  .inline-cta h3 { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--white); margin-bottom: 8px; letter-spacing: -0.3px; }
+  .inline-cta p { font-size: 14px; color: rgba(255,255,255,0.55); margin-bottom: 20px; }
+
+  .newsletter-wrap { max-width: 720px; margin: 64px auto 0; padding: 0 48px 80px; }
+
+  @media (max-width: 768px) {
+    .article-header { padding: 100px 20px 0; }
+    .article-body-content { padding: 0 20px 40px; }
+    .newsletter-wrap { padding: 0 20px 56px; margin-top: 48px; }
+    .pull-quote p { font-size: 18px; }
+    .stat-compare-grid { grid-template-columns: 1fr; }
+    .company-row { grid-template-columns: 1fr; }
+    .company-row:not(.header) div:nth-child(2) { border-left: none; }
+    .company-row.header { display: none; }
+    .company-row:not(.header) div:first-child { border-top: 2px solid var(--slate-900); }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="../index.html" class="nav-logo">
+    <div class="nav-icon">
+      <svg viewBox="0 0 22 22" fill="none">
+        <path d="M3 17L8 9L12 13L17 5L19 8" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="19" cy="8" r="2" fill="white"/>
+      </svg>
+    </div>
+    <span class="nav-name">Malleson Labs</span>
+  </a>
+  <div class="nav-links">
+    <a href="../index.html#services">Services</a>
+    <a href="../index.html#engine">Growth Engine</a>
+    <a href="../index.html#founder">About</a>
+    <a href="../research.html" class="active">Research</a>
+    <a href="../index.html#book" class="nav-cta">Book a free audit</a>
+  </div>
+</nav>
+
+<div class="article-header">
+  <a href="../research.html" class="back-link">← Back to Research</a>
+  <div class="article-tag-hero">Original Research</div>
+  <h1>The efficiency curve: what good ad spend looks like from £0 to £100M</h1>
+  <p class="subhead">A synthesis of public filings and aggregated industry data on how marketing efficiency should change as an ecommerce brand scales — and what it means when yours doesn't.</p>
+  <div class="article-meta-row">
+    <div class="author-chip">
+      <div class="author-avatar">AS</div>
+      <div class="author-name">Andrew Shakespeare</div>
+    </div>
+    <div class="article-date">June 2026</div>
+    <div class="read-time">7 min read</div>
+  </div>
+</div>
+
+<div class="article-body-content">
+
+  <p class="lede">Ask a founder doing £20M in revenue what "good" CAC or ROAS looks like at their stage, and most can't answer with confidence. They know their own number. They rarely know whether it's healthy for a business their size — because almost nobody publishes a clean, stage-by-stage view of acquisition efficiency. This piece is an attempt to build one, using the most honest data source available: what public ecommerce companies actually disclose on their income statements.</p>
+
+  <h2>Why this is harder to research than it should be</h2>
+
+  <p>Before the findings, a word on method, because it matters for how much weight to put on the numbers that follow. There is no single definitive study mapping CAC or ROAS cleanly to ecommerce revenue stage. Most published "CAC benchmarks" online are blended by vertical (beauty vs apparel vs food) rather than by company size, and a significant amount of the CAC statistics circulating in marketing content are unverifiable or inconsistently sourced. The one number that is genuinely disclosed, audited, and comparable across companies is marketing expense as a percentage of net revenue — it sits directly on the income statement of every public ecommerce company, and it's the closest thing to a real, stage-correlated efficiency proxy that exists publicly.</p>
+
+  <p>So that's what this piece is built on: audited marketing-spend ratios from real 10-K and quarterly filings, triangulated against aggregated private-company benchmark data compiled by ecommerce-focused financial advisory firms. Where a figure is independently verifiable from a public filing, it's presented as fact. Where it's an aggregated industry range, it's presented as a range, not a precise average — because that's what the underlying data actually supports.</p>
+
+  <h2>The curve: ad spend as a percentage of revenue, by stage</h2>
+
+  <p>The clearest pattern across both public filings and aggregated private benchmarks is that marketing spend as a share of revenue should decline as a brand scales — not because acquisition gets cheaper, but because retention revenue and brand equity compound, reducing reliance on paid acquisition for each incremental pound of revenue.</p>
+
+  <div class="chart-block">
+    <div class="chart-block-header">
+      <div class="chart-title">Marketing Spend as % of Revenue, by Ecommerce Revenue Stage</div>
+      <div class="chart-subtitle">Typical range; midpoint shown as the trend line</div>
+    </div>
+    <div class="chart-visual">
+      <div class="chart-svg-wrap">
+        <svg viewBox="0 0 600 300" style="width:100%;height:auto;">
+          <line x1="60" y1="20" x2="60" y2="250" stroke="#E4E8EF" stroke-width="1"/>
+          <line x1="60" y1="250" x2="580" y2="250" stroke="#E4E8EF" stroke-width="1"/>
+          <line x1="60" y1="190" x2="580" y2="190" stroke="#F1F3F7" stroke-width="1"/>
+          <line x1="60" y1="130" x2="580" y2="130" stroke="#F1F3F7" stroke-width="1"/>
+          <line x1="60" y1="70" x2="580" y2="70" stroke="#F1F3F7" stroke-width="1"/>
+
+          <text x="50" y="254" text-anchor="end" font-size="10" fill="#8896B0" font-family="Inter">0%</text>
+          <text x="50" y="194" text-anchor="end" font-size="10" fill="#8896B0" font-family="Inter">10%</text>
+          <text x="50" y="134" text-anchor="end" font-size="10" fill="#8896B0" font-family="Inter">20%</text>
+          <text x="50" y="74" text-anchor="end" font-size="10" fill="#8896B0" font-family="Inter">30%</text>
+
+          <!-- range bands (light blue) -->
+          <rect x="80" y="44" width="60" height="156" fill="#BFDBFE" opacity="0.5"/>
+          <rect x="160" y="68" width="60" height="138" fill="#BFDBFE" opacity="0.5"/>
+          <rect x="240" y="92" width="60" height="114" fill="#BFDBFE" opacity="0.5"/>
+          <rect x="320" y="110" width="60" height="90" fill="#BFDBFE" opacity="0.5"/>
+          <rect x="400" y="128" width="60" height="78" fill="#BFDBFE" opacity="0.5"/>
+          <rect x="480" y="148" width="60" height="60" fill="#BFDBFE" opacity="0.5"/>
+
+          <!-- midpoint trend line -->
+          <polyline points="110,75 190,98 270,124 350,146 430,160 510,178" fill="none" stroke="#2563EB" stroke-width="3"/>
+          <circle cx="110" cy="75" r="4" fill="#2563EB"/>
+          <circle cx="190" cy="98" r="4" fill="#2563EB"/>
+          <circle cx="270" cy="124" r="4" fill="#2563EB"/>
+          <circle cx="350" cy="146" r="4" fill="#2563EB"/>
+          <circle cx="430" cy="160" r="4" fill="#2563EB"/>
+          <circle cx="510" cy="178" r="4" fill="#2563EB"/>
+
+          <text x="110" y="270" text-anchor="middle" font-size="10" fill="#374151" font-family="Inter">&lt;£1M</text>
+          <text x="190" y="270" text-anchor="middle" font-size="10" fill="#374151" font-family="Inter">£1–5M</text>
+          <text x="270" y="270" text-anchor="middle" font-size="10" fill="#374151" font-family="Inter">£5–10M</text>
+          <text x="350" y="270" text-anchor="middle" font-size="10" fill="#374151" font-family="Inter">£10–25M</text>
+          <text x="430" y="270" text-anchor="middle" font-size="10" fill="#374151" font-family="Inter">£25–50M</text>
+          <text x="510" y="270" text-anchor="middle" font-size="10" fill="#374151" font-family="Inter">£50M+</text>
+        </svg>
+      </div>
+    </div>
+    <div class="chart-caption">Shaded bands show typical range; line shows approximate midpoint. Synthesised from aggregated DTC/CPG benchmark data (Eightx, 2026) cross-referenced against public company filings below.</div>
+  </div>
+
+  <p>The shape of the curve matters more than any single number on it. Brands under £1M typically run 25–35%+ of revenue on ads because they have no retention base, no brand recognition, and no organic channel yet — they are buying every customer cold. By £50M+, the healthy range compresses to roughly 7–15%, because a mature brand earns a meaningful share of revenue from repeat customers and organic/brand-driven traffic that costs nothing incremental to acquire.</p>
+
+  <h2>What public filings actually show</h2>
+
+  <p>Here's where the picture gets more interesting than a smooth curve suggests. Real public companies don't sit neatly on the trend line — and the deviations are diagnostic. I pulled and independently verified the following directly from company financial disclosures.</p>
+
+  <div class="company-table">
+    <div class="company-row header">
+      <div>Company</div>
+      <div>Marketing % of Revenue</div>
+      <div>What it reveals</div>
+    </div>
+    <div class="company-row">
+      <div>Allbirds (2023)</div>
+      <div>19.3%</div>
+      <div>Revenue $254M, marketing ratio in the "mature brand" range — looked healthy on the surface</div>
+    </div>
+    <div class="company-row">
+      <div>Allbirds (2024)</div>
+      <div>21.9%</div>
+      <div>Revenue fell to $190M while the ratio rose — the classic warning sign of fixed marketing commitments not flexing down as revenue contracts</div>
+    </div>
+    <div class="company-row">
+      <div>Allbirds (Q1 2025)</div>
+      <div>37.4%</div>
+      <div>Spiked further on a new brand campaign while revenue kept falling — spend increasing against a shrinking base</div>
+    </div>
+    <div class="company-row">
+      <div>Warby Parker</div>
+      <div>~12–16%</div>
+      <div>Mature, retail-supported DTC brand — physical stores reduce reliance on pure digital acquisition</div>
+    </div>
+    <div class="company-row">
+      <div>Olaplex</div>
+      <div>~20–25%</div>
+      <div>High gross margin (69%+) funds heavier brand reinvestment post-IPO, despite an already-known customer base</div>
+    </div>
+  </div>
+
+  <p>The Allbirds trajectory is the most instructive single case study available publicly. A rising marketing ratio against falling revenue is not really a marketing problem — it's a sign that retention and brand pull weren't compounding the way the model assumed. Fixed costs and committed campaigns don't scale down as fast as revenue can fall, so the ratio inflates even as the absolute dollar spend may be shrinking. Founders watching only ROAS by campaign can miss this entirely, because individual campaigns can still look efficient while the blended ratio quietly deteriorates.</p>
+
+  <div class="pull-quote">
+    <p>"If your ad spend ratio is not declining as you grow, you don't have a marketing problem. You have a retention problem disguised as a marketing problem."</p>
+  </div>
+
+  <h2>Why the curve bends the way it does</h2>
+
+  <p>Three structural mechanisms drive the decline, and they compound rather than operating independently.</p>
+
+  <p><strong>Retention revenue grows as a share of the total.</strong> Every repeat customer is revenue that required zero incremental acquisition spend in that period. As the customer base matures, the proportion of revenue coming from existing customers rises, mechanically diluting the blended marketing ratio even if acquisition spend per new customer stays flat.</p>
+
+  <p><strong>Brand equity reduces the cost of being found.</strong> A known brand earns direct, organic, and branded-search traffic that an unknown brand has to pay for. This is largely why Warby Parker, a genuinely mature consumer brand with physical retail presence, sits meaningfully below newer or smaller peers on the ratio.</p>
+
+  <p><strong>Operating leverage changes what "efficient" spend can fund.</strong> At scale, fixed costs like content production, brand campaigns, and platform tooling get spread across a larger revenue base, so the same absolute investment represents a smaller percentage.</p>
+
+  <div class="stat-compare-grid">
+    <div class="stat-compare-card highlight">
+      <div class="stat-compare-num">25–35%+</div>
+      <div class="stat-compare-label">Typical ad spend ratio for sub-£1M brands buying every customer cold</div>
+    </div>
+    <div class="stat-compare-card">
+      <div class="stat-compare-num">7–15%</div>
+      <div class="stat-compare-label">Typical ratio for mature £50M+ brands with established retention and brand pull</div>
+    </div>
+    <div class="stat-compare-card">
+      <div class="stat-compare-num">2.5x</div>
+      <div class="stat-compare-label">Allbirds' marketing ratio nearly doubled (19.3% → 37.4%) over six quarters as the underlying model weakened</div>
+    </div>
+  </div>
+
+  <h2>Why some brands break the curve — and what it means</h2>
+
+  <p>Not every deviation from the curve is bad news, and that nuance matters. A brand running 30%+ at £8M revenue isn't automatically in trouble — it depends entirely on gross margin and what's funding the spend. High-margin categories (premium beauty, supplements) with 65-70%+ gross margins can sustain a higher ratio and still generate healthy contribution margin, because there's simply more margin available to spend before profitability breaks. The same ratio on a 35% gross margin commodity product would be unsustainable.</p>
+
+  <p>The more reliable diagnostic than the absolute number is the trend. A brand whose ratio is stable or declining while revenue grows is on a healthy trajectory regardless of where it sits relative to the benchmark curve. A brand whose ratio is rising while revenue is flat or falling is the pattern to worry about — that's the Allbirds shape, and it shows up well before it becomes an existential problem if you're tracking it monthly rather than only watching campaign-level ROAS.</p>
+
+  <h2>What this means practically</h2>
+
+  <ul class="implications-list">
+    <li>
+      <strong>Track the ratio monthly, not the campaign ROAS alone.</strong>
+      <span>Blended marketing-spend-as-percent-of-revenue is the single number that tells you whether your business model is working at your current scale. Individual campaigns can look fine while the underlying ratio deteriorates.</span>
+    </li>
+    <li>
+      <strong>Benchmark against your stage, not the internet's blended average.</strong>
+      <span>A "healthy ecommerce CAC" quoted without a revenue-stage context is close to meaningless. Use the directional bands here as a starting point, then sense-check against your specific gross margin and category.</span>
+    </li>
+    <li>
+      <strong>If your ratio isn't declining as you scale, look at retention before you look at campaigns.</strong>
+      <span>The most common reason a brand's efficiency doesn't improve with size is that the retention engine that should be compounding never got built — and no amount of creative testing fixes that.</span>
+    </li>
+    <li>
+      <strong>Use gross margin to sanity-check whether your ratio is sustainable, not just typical.</strong>
+      <span>A 25% ad spend ratio is fine at 70% gross margin and dangerous at 35% gross margin. The stage benchmark is a starting point; your own margin structure is the real ceiling.</span>
+    </li>
+  </ul>
+
+  <div class="data-quality-box">
+    <div class="dq-title">A note on data quality</div>
+    <p>The stage-by-stage range bands in this piece are a synthesis of aggregated industry benchmark data from ecommerce-focused financial advisory sources, not a single peer-reviewed dataset — treat them as directional, not precise. The named company figures (Allbirds, Warby Parker, Olaplex) are drawn from, and independently cross-checked against, public SEC filings and company-issued financial results, and can be verified directly via SEC EDGAR or each company's investor relations site. Where this piece states a fact about a named public company, it's verifiable. Where it states a stage benchmark range, it's a reasonable synthesis of available data, not an audited industry-wide average — no such audited average currently exists publicly for ecommerce CAC or ROAS by revenue stage.</p>
+  </div>
+
+  <p>The honest takeaway: there's no single magic CAC or ROAS number that's "good" at any stage in isolation. What's measurable and meaningful is the trend in your blended marketing-spend ratio relative to your own revenue growth and gross margin — and whether that ratio is moving in the direction your stage of business should support.</p>
+
+  <div class="inline-cta">
+    <h3>Want your own efficiency curve mapped?</h3>
+    <p>A free commercial audit benchmarks your marketing spend ratio and retention trajectory against your specific stage and margin structure — not a generic industry average.</p>
+    <a href="../index.html#book" class="btn-primary">Book your free audit →</a>
+  </div>
+
+  <div class="article-footnote">Sources: Allbirds, Inc. quarterly and annual financial results releases and SEC 10-K filings (ir.allbirds.com; sec.gov/edgar), fiscal years 2023–2025; Warby Parker Inc. 10-K filings (SEC EDGAR); Olaplex Holdings 10-K filings (SEC EDGAR); stage-banded ad spend benchmarks synthesised from Eightx aggregated DTC/CPG client and industry data (2026), cross-referenced against Northbeam DTC Unit Economics and Triple Whale Ecommerce Benchmarks reports. Named public company figures are independently verifiable via SEC EDGAR and company investor relations pages. Stage-range bands represent a reasonable synthesis of available aggregated data rather than a single audited industry-wide study, and individual brand results vary significantly by category, gross margin, and growth strategy.</div>
+
+</div>
+
+<!-- Newsletter -->
+<div class="newsletter-wrap">
+  <div class="newsletter-banner">
+    <div class="newsletter-content">
+      <div class="section-eyebrow">Newsletter</div>
+      <h3>Get research like this first.</h3>
+      <p>Join ambitious ecommerce founders getting Malleson Labs research before it goes anywhere else.</p>
+    </div>
+    <div class="newsletter-form">
+      <div class="newsletter-input-row">
+        <input class="newsletter-input" type="email" placeholder="you@yourbrand.com">
+        <button class="newsletter-submit">Subscribe</button>
+      </div>
+      <div class="newsletter-microcopy">One email when there's something worth reading. Unsubscribe any time.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">
+        <div class="footer-logo-icon">
+          <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+            <path d="M3 17L8 9L12 13L17 5L19 8" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="19" cy="8" r="2" fill="white"/>
+          </svg>
+        </div>
+        <span class="footer-logo-text">Malleson Labs</span>
+      </div>
+      <div class="footer-tagline">The commercial operating system for scaling ecommerce brands. Founded by Andrew Shakespeare.</div>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <a href="../index.html#services">Growth Partner</a>
+      <a href="../index.html#services">Growth Intelligence</a>
+      <a href="../index.html#services">Commercial Audit</a>
+      <a href="../index.html#services">Day Rate</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="../index.html#engine">Growth Engine</a>
+      <a href="../research.html">Research</a>
+      <a href="../index.html#founder">About</a>
+      <a href="../index.html#book">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Connect</h4>
+      <a href="#">LinkedIn</a>
+      <a href="#">Newsletter</a>
+      <a href="../index.html#book">Book a call</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Malleson Labs Ltd. All rights reserved.</p>
+    <p>Registered in England & Wales</p>
+  </div>
+</footer>
+
+<div class="sticky-cta">
+  <div class="sticky-cta-inner">
+    <span class="sticky-cta-text">Free audit available</span>
+    <a href="../index.html#book" class="btn-primary">Book now</a>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Retention Pyramid — Malleson Labs Research</title>
+<link rel="stylesheet" href="../shared.css">
+<style>
+  .article-header { padding: 140px 48px 0; max-width: 720px; margin: 0 auto; }
+
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--slate-400); text-decoration: none; margin-bottom: 32px;
+  }
+  .back-link:hover { color: var(--electric); }
+
+  .article-tag-hero {
+    display: inline-block; background: var(--electric-light); border: 1px solid var(--electric-mid); color: var(--electric);
+    padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 20px;
+  }
+
+  .article-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(30px, 4.2vw, 44px);
+    letter-spacing: -1.1px; line-height: 1.18;
+    color: var(--slate-900); margin-bottom: 20px;
+  }
+
+  .article-header .subhead { font-size: 16px; color: var(--slate-500); line-height: 1.6; margin-bottom: 28px; }
+
+  .article-meta-row {
+    display: flex; align-items: center; gap: 16px;
+    padding-bottom: 32px; margin-bottom: 32px;
+    border-bottom: 1px solid var(--slate-200);
+  }
+
+  .author-chip { display: flex; align-items: center; gap: 10px; }
+
+  .author-avatar {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--slate-900);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif; font-size: 14px; color: var(--white);
+  }
+
+  .author-name { font-size: 13px; font-weight: 600; color: var(--slate-900); }
+  .article-date { font-size: 13px; color: var(--slate-400); }
+  .read-time { font-size: 13px; color: var(--slate-400); }
+
+  .article-body-content { max-width: 720px; margin: 0 auto; padding: 0 48px 48px; }
+
+  .article-body-content p { font-size: 17px; line-height: 1.75; color: var(--slate-700); margin-bottom: 24px; }
+  .article-body-content p.lede { font-size: 19px; color: var(--slate-800); }
+
+  .article-body-content h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; color: var(--slate-900);
+    letter-spacing: -0.5px; margin: 48px 0 20px;
+    line-height: 1.25;
+  }
+
+  .article-body-content h3 { font-size: 15px; font-weight: 700; color: var(--slate-900); margin: 28px 0 10px; }
+
+  /* Pyramid visual */
+  .pyramid-visual { margin: 32px 0; display: flex; flex-direction: column; gap: 3px; }
+
+  .pyr-tier { display: flex; align-items: stretch; gap: 3px; }
+
+  .pyr-label {
+    width: 90px; flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 14px;
+  }
+
+  .pyr-label span {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate-400); text-align: right;
+  }
+
+  .pyr-block { flex: 1; padding: 18px 22px; border-radius: 4px; }
+
+  .pyr-1 .pyr-block { background: var(--slate-900); color: var(--white); }
+  .pyr-2 .pyr-block { background: var(--slate-700); color: var(--white); }
+  .pyr-3 .pyr-block { background: var(--electric-light); color: var(--slate-900); border: 1px solid var(--electric-mid); }
+  .pyr-4 .pyr-block { background: var(--white); color: var(--slate-900); border: 1px solid var(--slate-200); }
+
+  .pyr-title { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+  .pyr-desc { font-size: 12px; opacity: 0.85; line-height: 1.4; }
+  .pyr-weight { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; margin-top: 6px; }
+
+  /* Charts */
+  .chart-block {
+    margin: 40px 0; border: 1px solid var(--slate-200); border-radius: 12px; overflow: hidden; background: var(--off-white);
+  }
+  .chart-block-header { padding: 20px 24px 0; }
+  .chart-title { font-size: 13px; font-weight: 700; color: var(--slate-900); margin-bottom: 4px; }
+  .chart-subtitle { font-size: 12px; color: var(--slate-400); margin-bottom: 16px; }
+  .chart-visual { padding: 0 24px 24px; }
+  .chart-svg-wrap { background: var(--white); border-radius: 8px; padding: 20px; }
+  .chart-caption {
+    font-size: 12px; color: var(--slate-400); padding: 12px 24px;
+    border-top: 1px solid var(--slate-200); font-style: italic;
+  }
+
+  .pull-quote {
+    margin: 40px 0; padding: 28px 32px;
+    background: var(--electric-light); border-left: 3px solid var(--electric); border-radius: 0 8px 8px 0;
+  }
+  .pull-quote p {
+    font-family: 'DM Serif Display', serif; font-size: 21px; font-style: italic; color: var(--slate-900); line-height: 1.4; margin: 0;
+  }
+
+  .stat-compare-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 32px 0; }
+
+  .stat-compare-card { background: var(--white); border: 1px solid var(--slate-200); border-radius: 10px; padding: 20px; }
+  .stat-compare-card.highlight { background: var(--electric-light); border-color: var(--electric-mid); }
+  .stat-compare-num { font-family: 'DM Serif Display', serif; font-size: 28px; color: var(--slate-900); letter-spacing: -0.5px; margin-bottom: 6px; }
+  .stat-compare-card.highlight .stat-compare-num { color: var(--electric); }
+  .stat-compare-label { font-size: 12px; color: var(--slate-500); line-height: 1.4; }
+
+  .self-check {
+    margin: 32px 0; background: var(--white); border: 1px solid var(--slate-200); border-radius: 12px; padding: 28px;
+  }
+  .self-check-title { font-size: 14px; font-weight: 700; color: var(--slate-900); margin-bottom: 16px; }
+  .self-check-row {
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+    padding: 12px 0; border-bottom: 1px solid var(--slate-100); font-size: 14px;
+  }
+  .self-check-row:last-child { border-bottom: none; }
+  .self-check-label { color: var(--slate-600); flex: 1; }
+  .self-check-q { color: var(--electric); font-weight: 700; flex-shrink: 0; font-size: 13px; }
+
+  .implications-list { list-style: none; display: flex; flex-direction: column; gap: 20px; margin: 24px 0 32px; }
+  .implications-list li { padding-left: 24px; position: relative; }
+  .implications-list li::before { content: '→'; position: absolute; left: 0; top: 2px; color: var(--electric); font-weight: 700; }
+  .implications-list strong { display: block; font-size: 16px; color: var(--slate-900); margin-bottom: 4px; }
+  .implications-list span { font-size: 15px; color: var(--slate-600); line-height: 1.6; }
+
+  .article-footnote {
+    font-size: 13px; color: var(--slate-400); font-style: italic;
+    margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--slate-200);
+  }
+
+  .inline-cta { margin: 48px 0; background: var(--slate-900); border-radius: 12px; padding: 32px; text-align: center; }
+  .inline-cta h3 { font-family: 'DM Serif Display', serif; font-size: 22px; color: var(--white); margin-bottom: 8px; letter-spacing: -0.3px; }
+  .inline-cta p { font-size: 14px; color: rgba(255,255,255,0.55); margin-bottom: 20px; }
+
+  .newsletter-wrap { max-width: 720px; margin: 64px auto 0; padding: 0 48px 80px; }
+
+  @media (max-width: 768px) {
+    .article-header { padding: 100px 20px 0; }
+    .article-body-content { padding: 0 20px 40px; }
+    .newsletter-wrap { padding: 0 20px 56px; margin-top: 48px; }
+    .pull-quote p { font-size: 18px; }
+    .stat-compare-grid { grid-template-columns: 1fr; }
+    .pyr-label { width: 64px; }
+    .pyr-label span { font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="../index.html" class="nav-logo">
+    <div class="nav-icon">
+      <svg viewBox="0 0 22 22" fill="none">
+        <path d="M3 17L8 9L12 13L17 5L19 8" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="19" cy="8" r="2" fill="white"/>
+      </svg>
+    </div>
+    <span class="nav-name">Malleson Labs</span>
+  </a>
+  <div class="nav-links">
+    <a href="../index.html#services">Services</a>
+    <a href="../index.html#engine">Growth Engine</a>
+    <a href="../index.html#founder">About</a>
+    <a href="../research.html" class="active">Research</a>
+    <a href="../index.html#book" class="nav-cta">Book a free audit</a>
+  </div>
+</nav>
+
+<div class="article-header">
+  <a href="../research.html" class="back-link">← Back to Research</a>
+  <div class="article-tag-hero">Original Research</div>
+  <h1>The retention pyramid: why your email flow isn't the problem</h1>
+  <p class="subhead">Most founders treat retention as a marketing automation problem. The data says it's a product and proposition problem first — and the gap between the two is bigger than most realise.</p>
+  <div class="article-meta-row">
+    <div class="author-chip">
+      <div class="author-avatar">AS</div>
+      <div class="author-name">Andrew Shakespeare</div>
+    </div>
+    <div class="article-date">June 2026</div>
+    <div class="read-time">7 min read</div>
+  </div>
+</div>
+
+<div class="article-body-content">
+
+  <p class="lede">Ask a founder how they're going to fix retention and the answer is almost always the same: a better post-purchase email flow. Maybe a loyalty programme. Maybe "subscribe and save." These are the levers that feel controllable — they sit inside Klaviyo, they can be built this sprint, and an agency can sell them to you in a single deck.</p>
+
+  <p>They're also, structurally, the smallest levers available. The evidence — both the rigorous academic kind and the messier industry-benchmark kind — points the same way: retention is overwhelmingly a function of what you sell, how it's first experienced, and whether the core proposition naturally invites a second purchase. Lifecycle marketing matters, but it's optimising around the edges of something the product and proposition have to get right first.</p>
+
+  <h2>The retention pyramid</h2>
+
+  <p>It helps to think of retention as a pyramid, not a checklist. Each layer depends on the one beneath it — and the layers at the top, the ones founders gravitate to first, are the smallest in actual impact.</p>
+
+  <div class="pyramid-visual">
+    <div class="pyr-tier pyr-1">
+      <div class="pyr-label"><span>Foundation</span></div>
+      <div class="pyr-block">
+        <div class="pyr-title">Does the core proposition invite repeat purchase?</div>
+        <div class="pyr-desc">Is this fundamentally a one-and-done category, or one with a natural reason to return — consumption, variety, evolving need?</div>
+        <div class="pyr-weight">Largest structural driver</div>
+      </div>
+    </div>
+    <div class="pyr-tier pyr-2">
+      <div class="pyr-label"><span>Structure</span></div>
+      <div class="pyr-block">
+        <div class="pyr-title">Is your range and replenishment cycle right?</div>
+        <div class="pyr-desc">Add-ons, consumables, a natural reorder point — or a single durable item with no obvious next purchase?</div>
+        <div class="pyr-weight">Major structural driver</div>
+      </div>
+    </div>
+    <div class="pyr-tier pyr-3">
+      <div class="pyr-label"><span>Experience</span></div>
+      <div class="pyr-block">
+        <div class="pyr-title">How good is the first experience?</div>
+        <div class="pyr-desc">Onboarding, unboxing, time-to-value, fulfilment reliability — the moments that decide whether trust is built or lost.</div>
+        <div class="pyr-weight">Meaningful, conditional driver</div>
+      </div>
+    </div>
+    <div class="pyr-tier pyr-4">
+      <div class="pyr-label"><span>Tactics</span></div>
+      <div class="pyr-block">
+        <div class="pyr-title">Email flows, loyalty points, subscribe and save</div>
+        <div class="pyr-desc">Genuinely useful — but only amplify a proposition that already lends itself to return. Cannot create demand that isn't there.</div>
+        <div class="pyr-weight">Smallest marginal driver</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>The foundation: category economics dwarf everything else</h2>
+
+  <p>The single clearest piece of evidence for this entire argument is how dramatically retention varies by category, independent of any marketing effort at all. Industry retention benchmarks show grocery and consumables brands retaining 40-65% of customers, while luxury goods retail averages just 9.9%. That's not a gap any email flow closes. It's the proposition itself — one category is bought repeatedly because it's consumed and replaced, the other is often bought once because the need, once met, is met.</p>
+
+  <div class="chart-block">
+    <div class="chart-block-header">
+      <div class="chart-title">Retention Rate by Category</div>
+      <div class="chart-subtitle">Industry benchmark ranges, independent of marketing tactics</div>
+    </div>
+    <div class="chart-visual">
+      <div class="chart-svg-wrap">
+        <svg viewBox="0 0 600 260" style="width:100%;height:auto;">
+          <line x1="180" y1="20" x2="180" y2="230" stroke="#E4E8EF" stroke-width="1"/>
+
+          <text x="170" y="44" text-anchor="end" font-size="12" fill="#374151" font-family="Inter">Grocery / consumables</text>
+          <rect x="180" y="32" width="390" height="24" fill="#2563EB" rx="3"/>
+          <text x="578" y="49" text-anchor="end" font-size="11" fill="white" font-family="Inter" font-weight="600">40–65%</text>
+
+          <text x="170" y="84" text-anchor="end" font-size="12" fill="#374151" font-family="Inter">Beauty / supplements</text>
+          <rect x="180" y="72" width="260" height="24" fill="#60A5FA" rx="3"/>
+          <text x="448" y="89" font-size="11" fill="#1D4ED8" font-family="Inter">Mid-range, replenishment-led</text>
+
+          <text x="170" y="124" text-anchor="end" font-size="12" fill="#374151" font-family="Inter">Apparel / general retail</text>
+          <rect x="180" y="112" width="170" height="24" fill="#94A3B8" rx="3"/>
+          <text x="358" y="129" font-size="11" fill="#374151" font-family="Inter">Lower, seasonal/variety-led</text>
+
+          <text x="170" y="164" text-anchor="end" font-size="12" fill="#374151" font-family="Inter">Luxury goods</text>
+          <rect x="180" y="152" width="60" height="24" fill="#CBD2DE" rx="3"/>
+          <text x="248" y="169" font-size="11" fill="#64748B" font-family="Inter">9.9%</text>
+
+          <text x="300" y="205" text-anchor="middle" font-size="11" fill="#8896B0" font-family="Inter">No email flow or loyalty programme bridges this gap on its own</text>
+        </svg>
+      </div>
+    </div>
+    <div class="chart-caption">Source: industry ecommerce retention benchmarks (Envive/Rivo compiled data, 2026). Ranges are illustrative of category structure, not a single definitive study.</div>
+  </div>
+
+  <p>This is the uncomfortable truth for a lot of founders: if you've built a brand around a durable, one-time-need product — a piece of furniture, a single capital item, a gift-led purchase — no amount of post-purchase marketing turns that into a high-retention business. The proposition itself sets the ceiling. The right response usually isn't "try harder on email," it's "build or acquire an adjacent product line that gives the customer a real reason to come back."</p>
+
+  <h2>The structure layer: range and replenishment cycle</h2>
+
+  <p>Assuming the category allows for repeat purchase at all, the next question is whether your specific range is built to capture it. This is where a lot of single-product or narrow-range D2C brands quietly cap their own retention without realising it. A consumable with a predictable usage cycle — supplements, coffee, skincare — creates a natural reorder point that a brand can plan around. A single durable product with no consumable add-on, accessory line, or natural "next size/next variant" purchase has no structural mechanism for repeat revenue at all, regardless of how good the customer experience was.</p>
+
+  <p>Subscription economics make this starkly visible. Subscription retention is highly sensitive to what's actually being bought and at what price point — lower-priced, habitual products sustain dramatically higher retention than higher-priced, more discretionary ones, because the purchase logic is closer to "replenish a need" than "justify a want" each time. The lesson generalises beyond subscriptions: if your range doesn't map to an ongoing need, you're optimising lifecycle marketing around a structural ceiling no campaign can lift.</p>
+
+  <div class="stat-compare-grid">
+    <div class="stat-compare-card highlight">
+      <div class="stat-compare-num">40–65%</div>
+      <div class="stat-compare-label">Typical retention for grocery/consumables — categories with built-in replenishment cycles</div>
+    </div>
+    <div class="stat-compare-card">
+      <div class="stat-compare-num">9.9%</div>
+      <div class="stat-compare-label">Typical retention for luxury goods — categories with no natural reorder trigger</div>
+    </div>
+    <div class="stat-compare-card">
+      <div class="stat-compare-num">67%</div>
+      <div class="stat-compare-label">More that repeat buyers can spend versus new customers, once retention is structurally possible</div>
+    </div>
+  </div>
+
+  <h2>The experience layer: a real but conditional driver</h2>
+
+  <p>Once the proposition and range are right, first experience genuinely matters — but it's an amplifier, not a creator, of repeat purchase potential. Customer experience research consistently links onboarding quality to loyalty: a strong majority of customers report being more likely to stay loyal to brands that invest in welcoming, educational post-purchase content, and companies that put experience at the centre of the business report close to double the annual growth in retention and repeat purchase rate compared with those that don't.</p>
+
+  <p>The honest caveat: much of this research comes from industry and vendor sources rather than peer-reviewed studies, so treat the precise percentages as directional rather than gospel. But the underlying logic holds up under scrutiny — a confusing unboxing experience, a slow first delivery, or a product that doesn't match expectations on arrival can sour an otherwise retention-friendly category before any lifecycle email gets sent. Experience can't manufacture a reason to repurchase that doesn't exist, but it can absolutely destroy one that did.</p>
+
+  <div class="pull-quote">
+    <p>"Lifecycle marketing optimises around the edges of a proposition. It cannot manufacture a reason to repurchase that the product itself doesn't provide."</p>
+  </div>
+
+  <h2>The tactics layer: useful, but the smallest lever</h2>
+
+  <p>None of this is an argument against email flows, loyalty programmes, or subscribe-and-save. They work — within limits. Automated, behaviourally-triggered email flows reliably outperform generic broadcast campaigns, and well-run loyalty programmes generate genuine incremental revenue through referral and repeat-purchase behaviour. Some of the figures circulating in marketing benchmarks (a handful of vendor reports claim 300%+ revenue increases from segmentation or automation) should be read with real scepticism — they're often vendor-published, self-selected, and not independently verified — but even taking a conservative reading, automation and personalisation clearly deliver a meaningful uplift on top of whatever retention the underlying proposition already supports.</p>
+
+  <p>The key word is "on top of." A loyalty programme bolted onto a single-purchase, no-replenishment product is optimising a number that has a low structural ceiling. The same programme bolted onto a consumable, replenishment-led range with a strong first experience has real compounding potential, because it's amplifying something that was already working.</p>
+
+  <h2>A quick self-check</h2>
+
+  <div class="self-check">
+    <div class="self-check-title">Before you brief another email flow, ask:</div>
+    <div class="self-check-row">
+      <div class="self-check-label">Does my core product get consumed, run out, or wear out — creating a natural reason to reorder?</div>
+      <div class="self-check-q">Foundation</div>
+    </div>
+    <div class="self-check-row">
+      <div class="self-check-label">Do I have add-ons, accessories, or range extensions that pair naturally with the first purchase?</div>
+      <div class="self-check-q">Structure</div>
+    </div>
+    <div class="self-check-row">
+      <div class="self-check-label">Is there a predictable replenishment cycle I can actually plan lifecycle marketing around?</div>
+      <div class="self-check-q">Structure</div>
+    </div>
+    <div class="self-check-row">
+      <div class="self-check-label">Does my first delivery and unboxing experience match what was promised in the ad?</div>
+      <div class="self-check-q">Experience</div>
+    </div>
+    <div class="self-check-row">
+      <div class="self-check-label">Have I actually quantified what % of customers structurally could buy again, before optimising the email that asks them to?</div>
+      <div class="self-check-q">Foundation</div>
+    </div>
+  </div>
+
+  <h2>What this means practically</h2>
+
+  <ul class="implications-list">
+    <li>
+      <strong>Diagnose before you automate.</strong>
+      <span>Before investing in a new flow or loyalty platform, work out what percentage of your customer base has a structural reason to buy again. If that number is low, the highest-leverage fix is product or range, not marketing.</span>
+    </li>
+    <li>
+      <strong>Consider an adjacent product line before an email redesign.</strong>
+      <span>If your core product is durable and one-time-purchase by nature, the biggest retention lever available might be a consumable add-on, not a better welcome series.</span>
+    </li>
+    <li>
+      <strong>Fix the first 30 days before the next 12 months.</strong>
+      <span>Onboarding and fulfilment quality determine whether a customer with a genuine reason to return actually does. Audit this before adding more touchpoints to a leaky experience.</span>
+    </li>
+    <li>
+      <strong>Use lifecycle marketing to amplify, not rescue.</strong>
+      <span>Subscribe-and-save and loyalty programmes are genuinely valuable tools — once the underlying proposition gives them something real to amplify.</span>
+    </li>
+  </ul>
+
+  <p>The uncomfortable version of this article is simple: if your retention is low, the answer is rarely "send more emails." It's "look honestly at whether what you sell, and how you sell it, gives someone a real reason to come back" — and only then start optimising the campaigns that remind them to.</p>
+
+  <div class="inline-cta">
+    <h3>Want an honest read on your retention ceiling?</h3>
+    <p>A free commercial audit looks at your product structure and replenishment economics — not just your email flows — to show you where the real retention opportunity sits.</p>
+    <a href="../index.html#book" class="btn-primary">Book your free audit →</a>
+  </div>
+
+  <div class="article-footnote">Sources: industry ecommerce retention benchmark compilations (Rivo, Envive); Recharge State of Subscription Commerce and Retention-Backed Growth reports; Harvard Business Review retention/profitability research; consumer subscription benchmark data (Parsa.vc); customer experience and onboarding research (UserGuiding, OnRamp). A meaningful share of available data in this space comes from marketing-technology vendors with a commercial interest in promoting specific tactics; figures are presented as directional industry signals rather than independently verified causal findings, and the core structural argument (category and product fit as the dominant retention driver) is better supported by the evidence than any single tactical percentage cited.</div>
+
+</div>
+
+<!-- Newsletter -->
+<div class="newsletter-wrap">
+  <div class="newsletter-banner">
+    <div class="newsletter-content">
+      <div class="section-eyebrow">Newsletter</div>
+      <h3>Get research like this first.</h3>
+      <p>Join ambitious ecommerce founders getting Malleson Labs research before it goes anywhere else.</p>
+    </div>
+    <div class="newsletter-form">
+      <div class="newsletter-input-row">
+        <input class="newsletter-input" type="email" placeholder="you@yourbrand.com">
+        <button class="newsletter-submit">Subscribe</button>
+      </div>
+      <div class="newsletter-microcopy">One email when there's something worth reading. Unsubscribe any time.</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">
+        <div class="footer-logo-icon">
+          <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+            <path d="M3 17L8 9L12 13L17 5L19 8" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="19" cy="8" r="2" fill="white"/>
+          </svg>
+        </div>
+        <span class="footer-logo-text">Malleson Labs</span>
+      </div>
+      <div class="footer-tagline">The commercial operating system for scaling ecommerce brands. Founded by Andrew Shakespeare.</div>
+    </div>
+    <div class="footer-col">
+      <h4>Services</h4>
+      <a href="../index.html#services">Growth Partner</a>
+      <a href="../index.html#services">Growth Intelligence</a>
+      <a href="../index.html#services">Commercial Audit</a>
+      <a href="../index.html#services">Day Rate</a>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <a href="../index.html#engine">Growth Engine</a>
+      <a href="../research.html">Research</a>
+      <a href="../index.html#founder">About</a>
+      <a href="../index.html#book">Contact</a>
+    </div>
+    <div class="footer-col">
+      <h4>Connect</h4>
+      <a href="#">LinkedIn</a>
+      <a href="#">Newsletter</a>
+      <a href="../index.html#book">Book a call</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 Malleson Labs Ltd. All rights reserved.</p>
+    <p>Registered in England & Wales</p>
+  </div>
+</footer>
+
+<div class="sticky-cta">
+  <div class="sticky-cta-inner">
+    <span class="sticky-cta-text">Free audit available</span>
+    <a href="../index.html#book" class="btn-primary">Book now</a>
+  </div>
+</div>
+
+</body>
+</html>
