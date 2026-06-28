@@ -283,6 +283,43 @@
     .hero-stats { gap: 32px; }
     .book-layout-grid { grid-template-columns: 1fr !important; }
   }
+
+  /* ── DEMO MODAL ── */
+  .demo-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 200;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .demo-overlay.open { display: flex; }
+  .demo-modal {
+    background: var(--white); border-radius: 16px;
+    padding: 48px; max-width: 480px; width: 100%;
+    position: relative;
+  }
+  .demo-modal-close {
+    position: absolute; top: 16px; right: 20px;
+    background: none; border: none; font-size: 22px;
+    color: var(--slate-400); cursor: pointer; line-height: 1;
+  }
+  .demo-modal-close:hover { color: var(--slate-900); }
+  .demo-modal h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; color: var(--slate-900);
+    letter-spacing: -0.5px; margin: 8px 0 12px;
+  }
+  .demo-modal p { font-size: 14px; color: var(--slate-500); line-height: 1.6; margin-bottom: 24px; }
+  .demo-form { display: flex; flex-direction: column; gap: 10px; }
+  .demo-input {
+    padding: 13px 16px; border: 1.5px solid var(--slate-200);
+    border-radius: 8px; font-family: 'Inter', sans-serif;
+    font-size: 14px; color: var(--slate-900); outline: none;
+    transition: border-color 0.15s;
+  }
+  .demo-input:focus { border-color: var(--electric); }
+  .demo-input::placeholder { color: var(--slate-400); }
+  .demo-success { display: none; text-align: center; padding: 16px 0; }
+  .demo-success p { color: var(--slate-700); font-weight: 500; margin: 0; }
+  .demo-microcopy { font-size: 11px; color: var(--slate-400); text-align: center; margin: 0 !important; }
 </style>
 </head>
 <body>
@@ -497,6 +534,9 @@
           </div>
         </div>
         <p style="margin-top: 32px; font-size: 13px; font-weight: 600; color: var(--electric);">Zero setup fees. Up and running in less than a week, guaranteed.</p>
+        <div style="margin-top: 20px;">
+          <button onclick="openDemoModal()" class="btn-primary" style="margin-right: 0;">Explore the live demo →</button>
+        </div>
       </div>
       <div class="engine-visual">
         <div class="engine-header">
@@ -728,6 +768,63 @@
     <a href="#book" class="btn-primary">Book now</a>
   </div>
 </div>
+
+<!-- DEMO MODAL -->
+<div class="demo-overlay" id="demoModal">
+  <div class="demo-modal">
+    <button class="demo-modal-close" onclick="closeDemoModal()">×</button>
+    <div class="section-eyebrow">The Growth Engine</div>
+    <h3>Explore the live demo</h3>
+    <p>Enter your email and we'll give you instant access to a live demo instance of The Growth Engine.</p>
+    <div id="demoFormWrap">
+      <form class="demo-form" onsubmit="submitDemoForm(event)">
+        <input type="email" class="demo-input" placeholder="Your email address" required id="demoEmail">
+        <button type="submit" class="btn-primary" style="text-align:center;">Get instant access →</button>
+      </form>
+      <p class="demo-microcopy" style="margin-top: 10px;">No spam. Unsubscribe any time.</p>
+    </div>
+    <div class="demo-success" id="demoSuccess">
+      <p>You're in. <a href="YOUR_DEMO_URL" target="_blank" style="color:var(--electric);font-weight:600;">Click here to access the demo →</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Replace these two values when ready:
+  var MAILCHIMP_URL = 'YOUR_MAILCHIMP_JSONP_URL'; // e.g. https://yourdomain.us1.list-manage.com/subscribe/post-json?u=XXX&id=XXX
+  var DEMO_URL = 'YOUR_DEMO_URL'; // e.g. https://demo.yourdomain.com
+
+  function openDemoModal() {
+    document.getElementById('demoModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDemoModal() {
+    document.getElementById('demoModal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('demoModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDemoModal();
+  });
+
+  function submitDemoForm(e) {
+    e.preventDefault();
+    var email = document.getElementById('demoEmail').value;
+    var url = MAILCHIMP_URL + '&EMAIL=' + encodeURIComponent(email) + '&c=handleMailchimpResponse';
+
+    window.handleMailchimpResponse = function(data) {
+      document.getElementById('demoFormWrap').style.display = 'none';
+      var success = document.getElementById('demoSuccess');
+      success.style.display = 'block';
+      success.querySelector('a').href = DEMO_URL;
+    };
+
+    var script = document.createElement('script');
+    script.src = url;
+    document.body.appendChild(script);
+  }
+</script>
 
 </body>
 </html>
