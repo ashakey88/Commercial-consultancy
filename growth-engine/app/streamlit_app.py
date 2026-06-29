@@ -25,9 +25,20 @@ def q(sql: str):
         con.close()
 
 
-if not config.DUCKDB_PATH.exists():
-    st.error("No data yet. Run `python run_pipeline.py` first.")
-    st.stop()
+@st.cache_resource(show_spinner="Setting up demo data…")
+def _bootstrap():
+    """On a fresh (hosted) instance with no data, build it from mock data so
+    the app is self-contained and deploys with zero external dependencies."""
+    if not config.DUCKDB_PATH.exists():
+        from run_pipeline import extract_and_load
+        from transform import build_models
+
+        extract_and_load()
+        build_models.build()
+    return True
+
+
+_bootstrap()
 
 st.title("The Growth Engine")
 st.caption(f"Client: {config.CLIENT_ID} · live commercial view")
